@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityService", "src\Services\IdentityService\IdentityService.csproj", "{3032271B-6158-4E06-BE02-660C75317429}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnalyticsService", "src\Services\AnalyticsService\AnalyticsService.csproj", "{B55FF431-60B6-4C94-8B93-A5EB1733B359}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrlService", "src\Services\UrlService\UrlService.csproj", "{1E50C279-0378-4508-9F95-88F826789CD7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure\Infrastructure.csproj", "{5E4C90F5-0AEC-43B6-9B61-F356497BD588}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "src\Shared\Shared\Shared.csproj", "{157F6E17-A8FC-4E1A-AA6A-74C2CB188DD4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGateway", "src\Gateways\ApiGateway\ApiGateway.csproj", "{8589F131-E476-460D-B6DB-BF6872D737EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3032271B-6158-4E06-BE02-660C75317429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3032271B-6158-4E06-BE02-660C75317429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3032271B-6158-4E06-BE02-660C75317429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3032271B-6158-4E06-BE02-660C75317429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B55FF431-60B6-4C94-8B93-A5EB1733B359}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B55FF431-60B6-4C94-8B93-A5EB1733B359}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B55FF431-60B6-4C94-8B93-A5EB1733B359}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B55FF431-60B6-4C94-8B93-A5EB1733B359}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E50C279-0378-4508-9F95-88F826789CD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E50C279-0378-4508-9F95-88F826789CD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E50C279-0378-4508-9F95-88F826789CD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E50C279-0378-4508-9F95-88F826789CD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E4C90F5-0AEC-43B6-9B61-F356497BD588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E4C90F5-0AEC-43B6-9B61-F356497BD588}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E4C90F5-0AEC-43B6-9B61-F356497BD588}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E4C90F5-0AEC-43B6-9B61-F356497BD588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{157F6E17-A8FC-4E1A-AA6A-74C2CB188DD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{157F6E17-A8FC-4E1A-AA6A-74C2CB188DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{157F6E17-A8FC-4E1A-AA6A-74C2CB188DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{157F6E17-A8FC-4E1A-AA6A-74C2CB188DD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8589F131-E476-460D-B6DB-BF6872D737EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8589F131-E476-460D-B6DB-BF6872D737EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8589F131-E476-460D-B6DB-BF6872D737EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8589F131-E476-460D-B6DB-BF6872D737EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

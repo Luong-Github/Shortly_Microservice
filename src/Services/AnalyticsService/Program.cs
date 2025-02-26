@@ -72,6 +72,9 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var analyticsService = app.Services.GetRequiredService<AnalyticsService.Services.AnalyticsService>();
+analyticsService.SubscribeToAnalyticsUpdates();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

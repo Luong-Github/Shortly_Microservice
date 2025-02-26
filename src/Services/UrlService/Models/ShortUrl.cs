@@ -10,5 +10,7 @@ namespace UrlService.Models
         public string OriginalUrl { get; set; } = string.Empty;
         [Required]
         public string ShortCode { get; set; } = string.Empty;
+
+        public DateTime ExpirationDate { get; set; }
     }
 }

@@ -11,6 +11,7 @@ namespace AnalyticsService.ClickAnalytics.Commands
         public string UserId { get; set; }
         public string IpAddress { get; set; }
         public DateTimeOffset CreatedDate { get; set; }
+        public DateTimeOffset? CreatedBy { get; set; }
     }
 
     public class LogClickCommandHandler : IRequestHandler<LogClickCommand>

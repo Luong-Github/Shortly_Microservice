@@ -1,5 +1,8 @@
-﻿using AnalyticsService.Models;
+﻿using AnalyticsService.ClickAnalytics.Commands;
+using AnalyticsService.ClickAnalytics.Queries;
+using AnalyticsService.Models;
 using AnalyticsService.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,16 +13,18 @@ namespace AnalyticsService.Controllers
     public class AnalyticsController : Controller
     {
         private readonly IAnalyticsRepository _analyticsRepository;
+        private readonly IMediator _mediator;
         
-        public AnalyticsController(IAnalyticsRepository analyticsRepository)
+        public AnalyticsController(IAnalyticsRepository analyticsRepository, IMediator mediator)
         {
             _analyticsRepository = analyticsRepository;
+            _mediator = mediator;
         }
 
         [HttpPost("track")]
-        public async Task<IActionResult> TrackClickAsync([FromBody]ClickRecord clickRecord)
+        public async Task<IActionResult> TrackClickAsync([FromBody] LogClickCommand command)
         {
-            await _analyticsRepository.LogClickAsync(clickRecord);
+            await _mediator.Send(command);
             return Ok( new {message = "Click logged successfully"});
         }
 
@@ -40,7 +45,7 @@ namespace AnalyticsService.Controllers
         [HttpGet("cached-total/{shortCode}")]
         public async Task<IActionResult> GetTotalClicksFromCacheAsync(string shortCode)
         {
-            var totalClicks = await _analyticsRepository.GetTotalClicksFromCacheAsync(shortCode);
+            var totalClicks = await _mediator.Send(new GetTotalClickQuery(shortCode));
             return Ok(new {shortCode, totalClicks = totalClicks});
         }
     }

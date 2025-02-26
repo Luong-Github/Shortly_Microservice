@@ -1,5 +1,8 @@
 using AnalyticsService.Data;
+using AnalyticsService.Hubs;
+using AnalyticsService.Middlewares;
 using AnalyticsService.Repositories;
+using AnalyticsService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -36,14 +39,32 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("tQkM8cZXgXP1GK90841hBaoHIDoEwtud"))
         };
     });
-
-builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
-
 // Register MediatR
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
 });
+
+builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
+builder.Services.AddSingleton<RedisService>();
+
+builder.Services.AddHostedService<RabbitMqConsumer>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "AllowedCors", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200").AllowAnyHeader()
+                                                  .AllowAnyMethod(); 
+        policy.AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials()
+               .SetIsOriginAllowed(_ => true);
+});
+});
+
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -58,9 +79,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<AuditLoggingMiddleware>(); // Add Audit Logging Middleware
+
+
+app.UseCors("AllowedCors");
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseHttpsRedirection();
+
+app.MapHub<LoginAnalyticsHub>("login-hub");
 
 app.Run();

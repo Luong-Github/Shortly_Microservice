@@ -6,6 +6,10 @@ namespace AnalyticsService.ClickAnalytics.Queries
     public class GetTotalClickQuery : IRequest<int>
     {
         public string ShortCode { get; }
+        public GetTotalClickQuery(string shortCode)
+        {
+            ShortCode = shortCode;
+        }
     }
 
     public class GetTotalClickQueryHandler : IRequestHandler<GetTotalClickQuery, int>

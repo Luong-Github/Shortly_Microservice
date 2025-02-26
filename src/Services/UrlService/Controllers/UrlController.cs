@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using UrlService.Models.Requests;
 using UrlService.Repositories;
 using UrlService.Services;
+using UrlService.Services.UrlShortening.Commands;
+using UrlService.Services.UrlShortening.Queries;
 
 namespace UrlService.Controllers
 {
@@ -14,16 +17,18 @@ namespace UrlService.Controllers
     {
         private readonly IUrlRepository _urlRepository;
         private readonly UrlShorteningService _urlShorteningService;
+        private readonly IMediator _mediator;
 
-        public UrlController(IUrlRepository urlRepository, UrlShorteningService urlShorteningService)
+        public UrlController(IUrlRepository urlRepository, UrlShorteningService urlShorteningService, IMediator mediator)
         {
             _urlRepository = urlRepository;
             _urlShorteningService = urlShorteningService;
+            _mediator = mediator;
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("shorten")]
-        public async Task<IActionResult> ShortenUrl([FromBody] UrlRequest model)
+        public async Task<IActionResult> ShortenUrl([FromBody] ShortenUrlCommand command)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
@@ -31,18 +36,14 @@ namespace UrlService.Controllers
                 return Unauthorized();
             }
 
-            var shortUrl = await _urlShorteningService.CreateShortenUrlAsync(model.OriginalUrl, Guid.Parse(userId));
-            return Ok(new {shortUrl.ShortCode});
+            string shortCode = await _mediator.Send(command);
+            return Ok(new {shortCode});
         }
 
         [HttpGet("{shortCode}")]
         public async Task<IActionResult> GetOriginalUrl(string shortCode)
         {
-            var shortUrl = await _urlRepository.GetByShortCodeAsync(shortCode);
-            if (shortUrl == null)
-            {
-                return NotFound();
-            }
+            var originalUrl = await _mediator.Send(new GetOriginalUrlQuery(shortCode));
 
             /// track click event
             var client = new HttpClient();
@@ -55,7 +56,7 @@ namespace UrlService.Controllers
                 CreatedAt = DateTimeOffset.Now
             });
 
-            return Redirect(shortUrl.OriginalUrl);
+            return Redirect(originalUrl);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

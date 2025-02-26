@@ -1,4 +1,5 @@
-﻿using AnalyticsService.Models;
+﻿using AnalyticsService.Entities;
+using AnalyticsService.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnalyticsService.Data
@@ -10,6 +11,8 @@ namespace AnalyticsService.Data
         }
 
         public DbSet<ClickRecord> ClickRecords { get; set; } = null!;
+
+        public DbSet<AuditLog> AuditLog { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

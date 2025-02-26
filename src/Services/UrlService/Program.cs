@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 using UrlService.Data;
 using UrlService.Repositories;
@@ -19,6 +20,11 @@ builder.Services.AddDbContext<UrlDbContext>(options =>
 builder.Services.AddScoped<IUrlRepository, UrlRepository>();
 builder.Services.AddScoped<UrlShorteningService>();
 
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.RequireHttpsMetadata = false;
@@ -34,8 +40,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("tQkM8cZXgXP1GK90841hBaoHIDoEwtud"))
     };
 });
-
 builder.Services.AddAuthorization();
+
 
 
 builder.Services.AddControllers();

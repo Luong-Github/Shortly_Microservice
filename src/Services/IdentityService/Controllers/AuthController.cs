@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Security.Claims;
+using MediatR;
+using IdentityService.Commands;
 
 namespace IdentityService.Controllers
 {
@@ -16,12 +18,14 @@ namespace IdentityService.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _config;
+        private readonly IMediator _mediator;
 
-        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config)
+        public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, IMediator mediator)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _config = config;
+            _mediator = mediator;
         }
 
         [HttpPost("register")]
@@ -50,13 +54,7 @@ namespace IdentityService.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestModel model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null) return Unauthorized();
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            if (!result.Succeeded) return Unauthorized();
-
-            var token = GenerateJwtToken(user);
+            string token = await _mediator.Send(new LoginUserCommand(model.Email, model.Password));
             return Ok(new {token});
         }
 

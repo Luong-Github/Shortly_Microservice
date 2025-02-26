@@ -1,10 +1,12 @@
 using IdentityService.Configs;
 using IdentityService.Data;
 using IdentityService.Models;
+using IdentityService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,8 @@ builder.Services.AddDbContext<AppIdentityDbContext>(
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppIdentityDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddScoped<JwtTokenGenerator>();
 
 builder.Services.AddIdentityServer(options =>
 {
@@ -59,6 +63,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("tQkM8cZXgXP1GK90841hBaoHIDoEwtud"))
        };
    });
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

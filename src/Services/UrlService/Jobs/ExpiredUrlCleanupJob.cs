@@ -1,4 +1,5 @@
-﻿using Quartz;
+﻿using Microsoft.EntityFrameworkCore;
+using Quartz;
 using UrlService.Data;
 
 namespace UrlService.Jobs
@@ -14,16 +15,16 @@ namespace UrlService.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
-            //var now = DateTime.UtcNow;
-            //var expiredUrls = await _dbContext.ShortUrls.Where(url => url.ExpirationDate < now).ToListAsync();
+            var now = DateTime.UtcNow;
+            var expiredUrls = await _dbContext.ShortUrls.Where(url => url.ExpirationDate < now).ToListAsync();
 
-            //if (expiredUrls.Any())
-            //{
-            //    _dbContext.ShortUrls.RemoveRange(expiredUrls);
-            //    await _dbContext.SaveChangesAsync();
+            if (expiredUrls.Any())
+            {
+                _dbContext.ShortUrls.RemoveRange(expiredUrls);
+                await _dbContext.SaveChangesAsync();
 
-            //    Console.WriteLine($"[Expired URLs Cleanup] Deleted {expiredUrls.Count} expired URLs.");
-            //}
+                Console.WriteLine($"[Expired URLs Cleanup] Deleted {expiredUrls.Count} expired URLs.");
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using AnalyticsService.Data;
+using AnalyticsService.Events;
 using AnalyticsService.Hubs;
 using AnalyticsService.Middlewares;
 using AnalyticsService.Repositories;
@@ -9,6 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
+using AnalyticsService.Jobs;
+using Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,10 +51,24 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
 });
 
+builder.Services.AddSingleton<IEmailService, EmailService>();
+
 builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
 builder.Services.AddSingleton<RedisService>();
+
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+    var syncJobKey = new JobKey("SyncRedisAnalyticsJob");
+    q.AddJob<SyncRedisAnalyticsJob>(opts => opts.WithIdentity(syncJobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(syncJobKey)
+        .WithIdentity("SyncRedisAnalyticsTrigger")
+        .WithCronSchedule("0 */10 * * * ?")); // Runs every 10 minutes
+});
 
 builder.Services.AddHostedService<RabbitMqConsumer>();
 builder.Services.AddCors(options =>
@@ -74,6 +94,9 @@ var app = builder.Build();
 
 var analyticsService = app.Services.GetRequiredService<AnalyticsService.Services.AnalyticsService>();
 analyticsService.SubscribeToAnalyticsUpdates();
+
+var clickEventConsumer = app.Services.GetRequiredService<ClickEventConsumer>();
+Task.Run(() => clickEventConsumer.StartListening());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

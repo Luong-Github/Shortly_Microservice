@@ -1,6 +1,7 @@
 ﻿using IdentityService.Events;
 using IdentityService.Models;
 using IdentityService.Services;
+using IdentityService.Services.Tenant;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -10,11 +11,12 @@ namespace IdentityService.Commands
     {
         public string Email { get; set; }
         public string Password { get; set; }
-
-        public LoginUserCommand(string email, string password)
+        public string? Domain { get; set; }
+        public LoginUserCommand(string email, string password, string domain)
         {
             Email = email;
             Password = password;
+            Domain = domain;
         }
     }
 
@@ -35,6 +37,9 @@ namespace IdentityService.Commands
 
         public async Task<string> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
+            var tenant = await _mediator.Send(new GetTenantAsyncQuery() { Domain = request.Domain });
+            if (tenant == null) return null;
+
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password)) 
                 throw new UnauthorizedAccessException("Invalid credentials");

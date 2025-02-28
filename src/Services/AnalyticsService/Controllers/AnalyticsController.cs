@@ -1,16 +1,14 @@
 ﻿using AnalyticsService.ClickAnalytics.Commands;
 using AnalyticsService.ClickAnalytics.Queries;
-using AnalyticsService.Models;
 using AnalyticsService.Repositories;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnalyticsService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AnalyticsController : Controller
+    public class AnalyticsController : ControllerBase
     {
         private readonly IAnalyticsRepository _analyticsRepository;
         private readonly IMediator _mediator;

@@ -1,5 +1,7 @@
+using AspNetCoreRateLimit;
 using IdentityService.Configs;
 using IdentityService.Data;
+using IdentityService.Middleware;
 using IdentityService.Models;
 using IdentityService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -28,6 +30,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<JwtTokenGenerator>();
+builder.Services.AddScoped<IAffiliateService, AffiliateService>();
+builder.Services.AddScoped<IBillingService, BillingService>();
+builder.Services.AddScoped<IReferralService, ReferralService>();
 
 builder.Services.AddIdentityServer(options =>
 {
@@ -66,6 +71,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.GeneralRules = new List<RateLimitRule>
+    {
+        new RateLimitRule
+        {
+            Endpoint = "*",
+            Limit = 1000,
+            Period = "1d" // 1000 requests per day
+        }
+    };
+});
+
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -77,6 +98,9 @@ app.UseSwaggerUI();
 
 app.UseIdentityServer();
 app.UseAuthorization();
+app.UseMiddleware<TenantMiddleware>();
+app.UseMiddleware<SubscriptionMiddleware>();
+app.UseIpRateLimiting();
 
 app.MapControllers();
 

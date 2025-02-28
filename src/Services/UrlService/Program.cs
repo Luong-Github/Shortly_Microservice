@@ -6,6 +6,10 @@ using System.Text;
 using UrlService.Data;
 using UrlService.Repositories;
 using UrlService.Services;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
+using UrlService.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +27,18 @@ builder.Services.AddScoped<UrlShorteningService>();
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+});
+
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+    var cleanupJobKey = new JobKey("ExpiredUrlCleanupJob");
+    q.AddJob<ExpiredUrlCleanupJob>(opts => opts.WithIdentity(cleanupJobKey));
+    q.AddTrigger(opts => opts
+        .ForJob(cleanupJobKey)
+        .WithIdentity("ExpiredUrlCleanupTrigger")
+        .WithCronSchedule("0 0 * * * ?")); // Runs every midnight
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

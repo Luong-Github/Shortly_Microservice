@@ -1,0 +1,5 @@
+Login to Grafana (http://<Grafana-ALB>/login)
+Add Data Source → Select Prometheus
+Enter URL: http://prometheus:9090
+Save & Test
+Create Dashboards for ALB, ECS, API Metrics.

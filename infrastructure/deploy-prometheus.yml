@@ -1,0 +1,31 @@
+name: Prometheus Monitoring
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-prometheus:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
+      - name: Deploy Prometheus
+        run: |
+          docker run -d --name prometheus -p 9090:9090 \
+            -v $GITHUB_WORKSPACE/prometheus.yml:/etc/prometheus/prometheus.yml \
+            prom/prometheus
+
+      - name: Verify Prometheus is Running
+        run: |
+          curl -I http://localhost:9090

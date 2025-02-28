@@ -1,0 +1,40 @@
+name: CloudWatch Monitoring
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-cloudwatch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy CloudWatch Log Groups
+        run: |
+          aws logs create-log-group --log-group-name /ecs/url-shortener-service
+          aws logs put-retention-policy --log-group-name /ecs/url-shortener-service --retention-in-days 30
+
+      - name: Set CloudWatch Alarms
+        run: |
+          aws cloudwatch put-metric-alarm \
+            --alarm-name "HighCPUUsage" \
+            --metric-name CPUUtilization \
+            --namespace AWS/ECS \
+            --statistic Average \
+            --period 300 \
+            --threshold 80 \
+            --comparison-operator GreaterThanThreshold \
+            --dimensions Name=ServiceName,Value=url-shortener-service \
+            --evaluation-periods 2 \
+            --alarm-actions arn:aws:sns:us-east-1:123456789012:cloudwatch-alarm-action

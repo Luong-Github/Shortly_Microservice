@@ -1,0 +1,22 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:UpdateSecretVersionStage"
+            ],
+            "Resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:database/credentials-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "rds:ModifyDBInstance",
+                "rds:DescribeDBInstances"
+            ],
+            "Resource": "arn:aws:rds:us-east-1:123456789012:db:mydatabase"
+        }
+    ]
+}

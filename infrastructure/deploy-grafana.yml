@@ -1,0 +1,31 @@
+name: Grafana Monitoring
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-grafana:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
+      - name: Deploy Grafana
+        run: |
+          docker run -d --name grafana -p 3000:3000 \
+            -v $GITHUB_WORKSPACE/grafana.ini:/etc/grafana/grafana.ini \
+            grafana/grafana
+
+      - name: Verify Grafana is Running
+        run: |
+          curl -I http://localhost:3000

@@ -8,6 +8,9 @@ using System.Text;
 using System.Security.Claims;
 using MediatR;
 using IdentityService.Commands;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IdentityService.Controllers
 {
@@ -54,7 +57,7 @@ namespace IdentityService.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestModel model)
         {
-            string token = await _mediator.Send(new LoginUserCommand(model.Email, model.Password));
+            string token = await _mediator.Send(new LoginUserCommand(model.Email, model.Password, "your-domain"));
             return Ok(new {token});
         }
 
@@ -80,6 +83,42 @@ namespace IdentityService.Controllers
 
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [HttpGet("login-microsoft")]
+        public IActionResult LoginWithMicrosoft()
+        {
+            var redirectUrl = Url.Action(nameof(HandleMicrosoftResponse), "Auth");
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, OpenIdConnectDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet("signin-microsoft")]
+        public async Task<IActionResult> HandleMicrosoftResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(OpenIdConnectDefaults.AuthenticationScheme);
+            if (!result.Succeeded) return Unauthorized();
+
+            var claims = result.Principal.Claims;
+            var userId = claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            var userEmail = claims.FirstOrDefault(c => c.Type == "email")?.Value;
+
+            return Ok(new { UserId = userId, Email = userEmail });
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+            return Ok("Logged out successfully!");
+        }
+
+        [Authorize]
+        [HttpGet("secure-data")]
+        public IActionResult GetSecureData()
+        {
+            return Ok(new { message = "You have accessed a protected resource!" });
         }
     }
 }
